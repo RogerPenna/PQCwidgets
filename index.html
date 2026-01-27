@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checklist Diamante</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Grist Widget API -->
+    <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- O formulário será renderizado aqui -->
+    </div>
+    
+    <!-- Área de Debug -->
+    <div id="debug-console" style="display:none; margin-top: 20px; padding: 10px; background: #333; color: #0f0; font-family: monospace; border-radius: 4px; max-height: 200px; overflow-y: auto; font-size: 12px;">
+        <div style="border-bottom: 1px solid #555; margin-bottom: 5px; font-weight: bold;">DEBUG CONSOLE</div>
+        <div id="debug-content"></div>
+    </div>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>

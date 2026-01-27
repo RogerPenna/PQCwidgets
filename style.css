@@ -1,0 +1,123 @@
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #34495e;
+    --accent-color: #3498db;
+    --success-color: #27ae60;
+    --warning-color: #f39c12;
+    --danger-color: #c0392b;
+    --bg-color: #f8f9fa;
+    --text-color: #333;
+    --border-color: #ddd;
+    --card-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+#app {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: var(--card-shadow);
+}
+
+/* Header & Score Badge */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--bg-color);
+}
+
+.title h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+
+.score-badge {
+    background-color: var(--bg-color);
+    color: var(--secondary-color);
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-weight: bold;
+    font-size: 1.2rem;
+    border: 2px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.score-badge.perfect {
+    background-color: var(--success-color);
+    color: white;
+    border-color: var(--success-color);
+}
+
+.score-badge.warning {
+    background-color: var(--warning-color);
+    color: white;
+    border-color: var(--warning-color);
+}
+
+.score-badge.danger {
+    background-color: var(--danger-color);
+    color: white;
+    border-color: var(--danger-color);
+}
+
+/* Question List */
+.question-item {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    transition: box-shadow 0.2s;
+}
+
+.question-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.question-label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--primary-color);
+}
+
+/* Styled Select */
+select {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+    color: var(--text-color);
+}
+
+select:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+/* Footer or Status */
+.status-bar {
+    margin-top: 20px;
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    text-align: right;
+}
