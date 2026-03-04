@@ -52,12 +52,13 @@ const options = [
 let isRendered = false;
 let tooltipElement = null;
 
-export function renderChecklist(container, data, saveCallback) {
+export function renderChecklist(container, data, saveCallback, companyName) {
     const values = data || {};
 
     // Se já renderizamos no container, apenas atualizamos os valores
     if (isRendered && container.querySelector('.checklist-form')) {
         updateValues(values, saveCallback);
+        updateHeader(companyName);
         return;
     }
 
@@ -83,7 +84,8 @@ export function renderChecklist(container, data, saveCallback) {
     const titleDiv = document.createElement('div');
     titleDiv.className = 'title';
     const h1 = document.createElement('h1');
-    h1.textContent = 'Checklist Diamante';
+    h1.id = 'main-title';
+    h1.textContent = `💎 CHECKLIST DIAMANTE - ${companyName || "Empresa não selecionada"}`;
     titleDiv.appendChild(h1);
     
     const scoreBadge = document.createElement('div');
@@ -232,6 +234,13 @@ function updateValues(values) {
         }
     });
     updateScore(values);
+}
+
+function updateHeader(companyName) {
+    const h1 = document.getElementById('main-title');
+    if (h1) {
+        h1.textContent = `💎 CHECKLIST DIAMANTE - ${companyName || "Empresa não selecionada"}`;
+    }
 }
 
 function updateScore(values) {

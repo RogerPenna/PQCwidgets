@@ -53,7 +53,8 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
         grist.ready({
             columns: [
-                { name: "ChecklistData", title: "Dados do Checklist (JSON)", type: "Text" }
+                { name: "ChecklistData", title: "Dados do Checklist (JSON)", type: "Text" },
+                { name: "CompanyName", title: "Nome da Empresa", type: "Text", optional: true }
             ],
             requiredAccess: 'full'
         });
@@ -74,21 +75,22 @@ grist.onRecord(function (record, mappings) {
     
     const container = document.getElementById('app');
     
-    // Check if column is mapped
+    // Check if columns are mapped
     const dataCol = mappings?.ChecklistData;
-    logToScreen("Coluna mapeada: " + (dataCol ? dataCol : 'NÃO MAPEADA'));
+    const nameCol = mappings?.CompanyName;
+    const companyName = nameCol ? record[nameCol] : "Empresa não selecionada";
+
+    logToScreen("Coluna mapeada (Dados): " + (dataCol ? dataCol : 'NÃO MAPEADA'));
+    logToScreen("Coluna mapeada (Empresa): " + (nameCol ? nameCol : 'NÃO MAPEADA'));
 
     if (!container) {
         console.error("Elemento #app não encontrado!");
         return;
     }
     
-    // REMOVIDO: container.innerHTML = ''; -> Deixa o módulo diamante.js decidir se limpa ou atualiza
-
-
     if (!dataCol) {
         container.innerHTML = '<div style="text-align:center; padding: 20px; color: #7f8c8d;">Por favor, mapeie a coluna de dados JSON nas configurações do widget.</div>';
-        logToScreen("ERRO: Coluna não mapeada.");
+        logToScreen("ERRO: Coluna de dados não mapeada.");
         return;
     }
 
@@ -123,7 +125,7 @@ grist.onRecord(function (record, mappings) {
 
     // Render the Diamond Checklist
     try {
-        renderChecklist(container, currentData, saveCallback);
+        renderChecklist(container, currentData, saveCallback, companyName);
         logToScreen("Renderização concluída.");
     } catch (e) {
         console.error("Erro na renderização:", e);
