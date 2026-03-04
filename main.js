@@ -1,5 +1,7 @@
 import { renderChecklist } from './modules/diamante.js';
 
+const VERSION = "1.4.0";
+
 // --- SISTEMA DE DEBUG ---
 function logToScreen(msg, type = 'info') {
     // Busca o elemento a cada chamada para garantir que já existe
@@ -48,6 +50,7 @@ console.error = function(...args) {
 
 // Aguarda o DOM estar pronto antes de iniciar a lógica pesada
 document.addEventListener("DOMContentLoaded", () => {
+    logToScreen(`*** Checklist Diamante v${VERSION} ***`);
     logToScreen("DOM Carregado. Iniciando lógica do Grist...");
     
     try {
