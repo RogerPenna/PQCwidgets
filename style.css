@@ -178,6 +178,40 @@ select:focus {
     box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
 }
 
+/* Save Button Styling */
+.save-button {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.save-button:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.save-button:active {
+    transform: translateY(0);
+}
+
+.save-button:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.save-button.success {
+    background-color: var(--success-color);
+}
+
 /* Footer or Status */
 .status-bar {
     margin-top: 20px;

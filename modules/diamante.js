@@ -48,16 +48,20 @@ const options = [
     { label: 'Todos', value: 100 }
 ];
 
-// Flag para saber se já renderizamos a estrutura inicial
+// Estado Global do Widget para evitar perda de referência no onRecord
 let isRendered = false;
 let tooltipElement = null;
+let currentValues = {};
+let currentSaveCallback = null;
 
 export function renderChecklist(container, data, saveCallback, companyName) {
-    const values = data || {};
+    // Atualiza referências globais para que os listeners usem os dados do registro ATUAL
+    currentValues = data || {};
+    currentSaveCallback = saveCallback;
 
-    // Se já renderizamos no container, apenas atualizamos os valores
+    // Se já renderizamos no container, apenas atualizamos os valores na tela
     if (isRendered && container.querySelector('.checklist-form')) {
-        updateValues(values, saveCallback);
+        updateValuesInDOM();
         updateHeader(companyName);
         return;
     }
@@ -65,7 +69,6 @@ export function renderChecklist(container, data, saveCallback, companyName) {
     // --- RENDERIZAÇÃO INICIAL ---
     container.innerHTML = ''; 
     
-    // Create Tooltip Element if it doesn't exist
     if (!document.getElementById('custom-tooltip')) {
         tooltipElement = document.createElement('div');
         tooltipElement.id = 'custom-tooltip';
@@ -74,7 +77,6 @@ export function renderChecklist(container, data, saveCallback, companyName) {
         tooltipElement = document.getElementById('custom-tooltip');
     }
     
-    // Create Layout
     const wrapper = document.createElement('div');
     
     // Header
@@ -145,17 +147,21 @@ export function renderChecklist(container, data, saveCallback, companyName) {
         justifContainer.appendChild(justifLabel);
         justifContainer.appendChild(textarea);
 
-        // Event Listeners
+        // Event Listeners (Usam as variáveis globais que são atualizadas em cada onRecord)
         select.addEventListener('change', () => {
             const newVal = parseInt(select.value, 10);
-            values[q.id] = newVal;
-            updateScore(values);
-            saveCallback(values);
+            currentValues[q.id] = newVal;
+            updateScore(currentValues);
+            if (currentSaveCallback) currentSaveCallback(currentValues);
+        });
+
+        textarea.addEventListener('input', () => {
+            currentValues[q.id + '_justification'] = textarea.value;
+            // Não salvamos a cada tecla para não travar o Grist, apenas no blur ou botão
         });
 
         textarea.addEventListener('blur', () => {
-            values[q.id + '_justification'] = textarea.value;
-            saveCallback(values);
+            if (currentSaveCallback) currentSaveCallback(currentValues);
         });
 
         // Tooltip Events
@@ -176,13 +182,43 @@ export function renderChecklist(container, data, saveCallback, companyName) {
     });
 
     wrapper.appendChild(form);
+
+    // Botão Salvar
+    const actions = document.createElement('div');
+    actions.className = 'form-actions';
+    actions.style.marginTop = '30px';
+    actions.style.textAlign = 'center';
+
+    const saveBtn = document.createElement('button');
+    saveBtn.id = 'btn-save';
+    saveBtn.className = 'save-button';
+    saveBtn.textContent = '💾 SALVAR ALTERAÇÕES';
+    saveBtn.addEventListener('click', () => {
+        if (currentSaveCallback) {
+            saveBtn.textContent = '⌛ SALVANDO...';
+            saveBtn.disabled = true;
+            currentSaveCallback(currentValues);
+            
+            setTimeout(() => {
+                saveBtn.textContent = '✅ SALVO!';
+                saveBtn.classList.add('success');
+                setTimeout(() => {
+                    saveBtn.textContent = '💾 SALVAR ALTERAÇÕES';
+                    saveBtn.classList.remove('success');
+                    saveBtn.disabled = false;
+                }, 2000);
+            }, 800);
+        }
+    });
+    actions.appendChild(saveBtn);
+    wrapper.appendChild(actions);
+
     container.appendChild(wrapper);
 
     isRendered = true;
-    updateValues(values);
+    updateValuesInDOM();
 }
 
-// Tooltip Logic
 function showTooltip(text, event) {
     if (!tooltipElement) return;
     tooltipElement.textContent = text;
@@ -192,20 +228,12 @@ function showTooltip(text, event) {
 
 function moveTooltip(event) {
     if (!tooltipElement) return;
-    
     const padding = 20;
     let x = event.clientX + padding;
     let y = event.clientY + padding;
-
-    // Ajuste para não sair da tela
     const tooltipRect = tooltipElement.getBoundingClientRect();
-    if (x + tooltipRect.width > window.innerWidth) {
-        x = event.clientX - tooltipRect.width - padding;
-    }
-    if (y + tooltipRect.height > window.innerHeight) {
-        y = event.clientY - tooltipRect.height - padding;
-    }
-
+    if (x + tooltipRect.width > window.innerWidth) x = event.clientX - tooltipRect.width - padding;
+    if (y + tooltipRect.height > window.innerHeight) y = event.clientY - tooltipRect.height - padding;
     tooltipElement.style.left = `${x}px`;
     tooltipElement.style.top = `${y}px`;
 }
@@ -215,11 +243,11 @@ function hideTooltip() {
     tooltipElement.classList.remove('visible');
 }
 
-function updateValues(values) {
+function updateValuesInDOM() {
     questions.forEach(q => {
         const select = document.getElementById(q.id);
         if (select) {
-            const savedVal = values[q.id] !== undefined ? values[q.id] : 0;
+            const savedVal = currentValues[q.id] !== undefined ? currentValues[q.id] : 0;
             if (parseInt(select.value, 10) !== savedVal) {
                 select.value = savedVal;
             }
@@ -227,13 +255,13 @@ function updateValues(values) {
 
         const textarea = document.getElementById(q.id + '_justification');
         if (textarea) {
-            const savedText = values[q.id + '_justification'] || '';
+            const savedText = currentValues[q.id + '_justification'] || '';
             if (textarea.value !== savedText) {
                 textarea.value = savedText;
             }
         }
     });
-    updateScore(values);
+    updateScore(currentValues);
 }
 
 function updateHeader(companyName) {
