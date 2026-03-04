@@ -88,11 +88,11 @@ body {
 /* Question List */
 .question-item {
     position: relative;
-    margin-bottom: 20px;
-    padding: 15px;
+    margin-bottom: 25px;
+    padding: 20px;
     background-color: #fff;
     border: 1px solid var(--border-color);
-    border-radius: 6px;
+    border-radius: 8px;
     transition: all 0.2s;
 }
 
@@ -124,10 +124,40 @@ body {
 
 .question-label {
     display: block;
-    margin-bottom: 10px;
-    font-weight: 500;
+    margin-bottom: 12px;
+    font-weight: 600;
     line-height: 1.4;
     color: var(--primary-color);
+}
+
+.justification-container {
+    margin-top: 15px;
+}
+
+.justification-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: var(--secondary-color);
+    margin-bottom: 5px;
+}
+
+textarea.justification-field {
+    width: 100%;
+    min-height: 60px;
+    padding: 10px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+textarea.justification-field:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
 }
 
 /* Styled Select */

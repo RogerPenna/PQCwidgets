@@ -126,10 +126,33 @@ export function renderChecklist(container, data, saveCallback) {
             select.appendChild(option);
         });
 
+        // Justification Container
+        const justifContainer = document.createElement('div');
+        justifContainer.className = 'justification-container';
+
+        const justifLabel = document.createElement('label');
+        justifLabel.className = 'justification-label';
+        justifLabel.textContent = 'Justificativa da avaliação (evidências)';
+        justifLabel.htmlFor = q.id + '_justification';
+
+        const textarea = document.createElement('textarea');
+        textarea.id = q.id + '_justification';
+        textarea.className = 'justification-field';
+        textarea.placeholder = 'Digite aqui as evidências coletadas...';
+
+        justifContainer.appendChild(justifLabel);
+        justifContainer.appendChild(textarea);
+
+        // Event Listeners
         select.addEventListener('change', () => {
             const newVal = parseInt(select.value, 10);
             values[q.id] = newVal;
             updateScore(values);
+            saveCallback(values);
+        });
+
+        textarea.addEventListener('blur', () => {
+            values[q.id + '_justification'] = textarea.value;
             saveCallback(values);
         });
 
@@ -146,6 +169,7 @@ export function renderChecklist(container, data, saveCallback) {
 
         item.appendChild(label);
         item.appendChild(select);
+        item.appendChild(justifContainer);
         form.appendChild(item);
     });
 
@@ -196,6 +220,14 @@ function updateValues(values) {
             const savedVal = values[q.id] !== undefined ? values[q.id] : 0;
             if (parseInt(select.value, 10) !== savedVal) {
                 select.value = savedVal;
+            }
+        }
+
+        const textarea = document.getElementById(q.id + '_justification');
+        if (textarea) {
+            const savedText = values[q.id + '_justification'] || '';
+            if (textarea.value !== savedText) {
+                textarea.value = savedText;
             }
         }
     });
