@@ -96,6 +96,21 @@ body {
     transition: all 0.2s;
 }
 
+.disabled-form {
+    filter: grayscale(100%);
+    opacity: 0.6;
+    pointer-events: none;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.disabled-form select,
+.disabled-form textarea {
+    background-color: #eee !important;
+    cursor: not-allowed;
+}
+
 .question-item:hover {
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     border-color: var(--accent-color);

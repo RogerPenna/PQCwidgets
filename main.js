@@ -54,7 +54,8 @@ document.addEventListener("DOMContentLoaded", () => {
         grist.ready({
             columns: [
                 { name: "ChecklistData", title: "Dados do Checklist (JSON)", type: "Text" },
-                { name: "Empresa", title: "Nome da Empresa", type: "Text", optional: true }
+                { name: "Empresa", title: "Nome da Empresa", type: "Text", optional: true },
+                { name: "Diamante", title: "Participa do Diamante (True/False)", type: "Bool", optional: true }
             ],
             requiredAccess: 'full'
         });
@@ -78,10 +79,14 @@ grist.onRecord(function (record, mappings) {
     // Check if columns are mapped
     const dataCol = mappings?.ChecklistData;
     const nameCol = mappings?.Empresa;
+    const diamanteCol = mappings?.Diamante;
+
     const companyName = nameCol ? record[nameCol] : "Empresa não selecionada";
+    const isDiamondEligible = diamanteCol ? record[diamanteCol] : false;
 
     logToScreen("Coluna mapeada (Dados): " + (dataCol ? dataCol : 'NÃO MAPEADA'));
     logToScreen("Coluna mapeada (Empresa): " + (nameCol ? nameCol : 'NÃO MAPEADA'));
+    logToScreen("Participa do Diamante: " + isDiamondEligible);
 
     if (!container) {
         console.error("Elemento #app não encontrado!");
@@ -125,7 +130,7 @@ grist.onRecord(function (record, mappings) {
 
     // Render the Diamond Checklist
     try {
-        renderChecklist(container, currentData, saveCallback, companyName);
+        renderChecklist(container, currentData, saveCallback, companyName, isDiamondEligible);
         logToScreen("Renderização concluída.");
     } catch (e) {
         console.error("Erro na renderização:", e);

@@ -48,25 +48,22 @@ const options = [
     { label: 'Todos', value: 100 }
 ];
 
-// Estado Global do Widget para evitar perda de referência no onRecord
+// Estado Global do Widget
 let isRendered = false;
 let tooltipElement = null;
 let currentValues = {};
 let currentSaveCallback = null;
 
-export function renderChecklist(container, data, saveCallback, companyName) {
-    // Atualiza referências globais para que os listeners usem os dados do registro ATUAL
+export function renderChecklist(container, data, saveCallback, companyName, isDiamondEligible) {
     currentValues = data || {};
     currentSaveCallback = saveCallback;
 
-    // Se já renderizamos no container, apenas atualizamos os valores na tela
     if (isRendered && container.querySelector('.checklist-form')) {
-        updateValuesInDOM();
-        updateHeader(companyName);
+        updateValuesInDOM(isDiamondEligible);
+        updateHeader(companyName, isDiamondEligible);
         return;
     }
 
-    // --- RENDERIZAÇÃO INICIAL ---
     container.innerHTML = ''; 
     
     if (!document.getElementById('custom-tooltip')) {
@@ -79,7 +76,6 @@ export function renderChecklist(container, data, saveCallback, companyName) {
     
     const wrapper = document.createElement('div');
     
-    // Header
     const header = document.createElement('div');
     header.className = 'header';
     
@@ -87,7 +83,6 @@ export function renderChecklist(container, data, saveCallback, companyName) {
     titleDiv.className = 'title';
     const h1 = document.createElement('h1');
     h1.id = 'main-title';
-    h1.textContent = `💎 CHECKLIST DIAMANTE - ${companyName || "Empresa não selecionada"}`;
     titleDiv.appendChild(h1);
     
     const scoreBadge = document.createElement('div');
@@ -99,17 +94,15 @@ export function renderChecklist(container, data, saveCallback, companyName) {
     header.appendChild(scoreBadge);
     wrapper.appendChild(header);
 
-    // Explanatory Text
     const explanation = document.createElement('div');
     explanation.className = 'explanation';
     explanation.textContent = 'Além da avaliação normal, o avaliador deverá coletar evidências para responder este checklist que será fundamental para a definição das empresas Cinco Estrelas Diamante. No final das visitas, as candidatas que atenderem os pré-requisitos, passarão para a avaliação final através deste checklist. A avaliação de cada questão deve seguir os critérios de: Todos= 100% dos os itens atendidos; Quase todos = de 75% a 99% dos itens atendidos; Muitos= de 50% a 74% dos itens atendidos; Alguns= de 25% a 49% dos itens atendidos e Nenhum= abaixo de 25% dos itens atendidos.';
     wrapper.appendChild(explanation);
 
-    // Form Container
     const form = document.createElement('div');
+    form.id = 'checklist-form-container';
     form.className = 'checklist-form';
 
-    // Render Questions
     questions.forEach(q => {
         const item = document.createElement('div');
         item.className = 'question-item';
@@ -130,7 +123,6 @@ export function renderChecklist(container, data, saveCallback, companyName) {
             select.appendChild(option);
         });
 
-        // Justification Container
         const justifContainer = document.createElement('div');
         justifContainer.className = 'justification-container';
 
@@ -147,7 +139,6 @@ export function renderChecklist(container, data, saveCallback, companyName) {
         justifContainer.appendChild(justifLabel);
         justifContainer.appendChild(textarea);
 
-        // Event Listeners (Usam as variáveis globais que são atualizadas em cada onRecord)
         select.addEventListener('change', () => {
             const newVal = parseInt(select.value, 10);
             currentValues[q.id] = newVal;
@@ -157,14 +148,12 @@ export function renderChecklist(container, data, saveCallback, companyName) {
 
         textarea.addEventListener('input', () => {
             currentValues[q.id + '_justification'] = textarea.value;
-            // Não salvamos a cada tecla para não travar o Grist, apenas no blur ou botão
         });
 
         textarea.addEventListener('blur', () => {
             if (currentSaveCallback) currentSaveCallback(currentValues);
         });
 
-        // Tooltip Events
         item.addEventListener('mouseenter', (e) => {
             showTooltip(q.helperText, e);
         });
@@ -183,8 +172,8 @@ export function renderChecklist(container, data, saveCallback, companyName) {
 
     wrapper.appendChild(form);
 
-    // Botão Salvar
     const actions = document.createElement('div');
+    actions.id = 'actions-container';
     actions.className = 'form-actions';
     actions.style.marginTop = '30px';
     actions.style.textAlign = 'center';
@@ -216,7 +205,8 @@ export function renderChecklist(container, data, saveCallback, companyName) {
     container.appendChild(wrapper);
 
     isRendered = true;
-    updateValuesInDOM();
+    updateHeader(companyName, isDiamondEligible);
+    updateValuesInDOM(isDiamondEligible);
 }
 
 function showTooltip(text, event) {
@@ -243,7 +233,23 @@ function hideTooltip() {
     tooltipElement.classList.remove('visible');
 }
 
-function updateValuesInDOM() {
+function updateValuesInDOM(isDiamondEligible) {
+    const formContainer = document.getElementById('checklist-form-container');
+    const saveBtn = document.getElementById('btn-save');
+
+    if (formContainer) {
+        if (!isDiamondEligible) {
+            formContainer.classList.add('disabled-form');
+        } else {
+            formContainer.classList.remove('disabled-form');
+        }
+    }
+
+    if (saveBtn) {
+        saveBtn.disabled = !isDiamondEligible;
+        saveBtn.style.opacity = isDiamondEligible ? '1' : '0.5';
+    }
+
     questions.forEach(q => {
         const select = document.getElementById(q.id);
         if (select) {
@@ -251,6 +257,7 @@ function updateValuesInDOM() {
             if (parseInt(select.value, 10) !== savedVal) {
                 select.value = savedVal;
             }
+            select.disabled = !isDiamondEligible;
         }
 
         const textarea = document.getElementById(q.id + '_justification');
@@ -259,15 +266,17 @@ function updateValuesInDOM() {
             if (textarea.value !== savedText) {
                 textarea.value = savedText;
             }
+            textarea.disabled = !isDiamondEligible;
         }
     });
     updateScore(currentValues);
 }
 
-function updateHeader(companyName) {
+function updateHeader(companyName, isDiamondEligible) {
     const h1 = document.getElementById('main-title');
     if (h1) {
-        h1.textContent = `💎 CHECKLIST DIAMANTE - ${companyName || "Empresa não selecionada"}`;
+        const displayName = isDiamondEligible ? (companyName || "Empresa não selecionada") : "Não Participa";
+        h1.textContent = `💎 CHECKLIST DIAMANTE - ${displayName}`;
     }
 }
 
