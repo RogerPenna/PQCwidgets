@@ -98,17 +98,31 @@ body {
 
 .disabled-form {
     filter: grayscale(100%);
-    opacity: 0.6;
+    opacity: 0.8;
     pointer-events: none;
-    background-color: #f0f0f0;
+    background-color: #d1d1d1 !important;
     border-radius: 8px;
-    padding: 10px;
+    padding: 15px;
+    border: 2px solid #aaa;
+}
+
+.disabled-form .question-item {
+    background-color: #c0c0c0 !important;
+    border-color: #999 !important;
+    box-shadow: none !important;
 }
 
 .disabled-form select,
 .disabled-form textarea {
-    background-color: #eee !important;
+    background-color: #999 !important;
+    color: #777 !important;
+    border-color: #888 !important;
     cursor: not-allowed;
+}
+
+.disabled-form .question-label,
+.disabled-form .justification-label {
+    color: #555 !important;
 }
 
 .question-item:hover {
