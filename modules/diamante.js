@@ -234,20 +234,22 @@ function hideTooltip() {
 }
 
 function updateValuesInDOM(isDiamondEligible) {
-    const formContainer = document.getElementById('checklist-form-container');
+    const wrapper = document.querySelector('#app > div'); // Pega o wrapper gerado no render
     const saveBtn = document.getElementById('btn-save');
 
-    if (formContainer) {
+    if (wrapper) {
         if (!isDiamondEligible) {
-            formContainer.classList.add('disabled-form');
+            wrapper.classList.add('disabled-app');
+            wrapper.style.pointerEvents = 'none'; // Bloqueia tudo
         } else {
-            formContainer.classList.remove('disabled-form');
+            wrapper.classList.remove('disabled-app');
+            wrapper.style.pointerEvents = 'auto';
         }
     }
 
     if (saveBtn) {
         saveBtn.disabled = !isDiamondEligible;
-        saveBtn.style.opacity = isDiamondEligible ? '1' : '0.5';
+        saveBtn.style.opacity = isDiamondEligible ? '1' : '0.2';
     }
 
     questions.forEach(q => {
