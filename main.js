@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
         grist.ready({
             columns: [
                 { name: "ChecklistData", title: "Dados do Checklist (JSON)", type: "Text" },
-                { name: "CompanyName", title: "Nome da Empresa", type: "Text", optional: true }
+                { name: "Empresa", title: "Nome da Empresa", type: "Text", optional: true }
             ],
             requiredAccess: 'full'
         });
@@ -77,7 +77,7 @@ grist.onRecord(function (record, mappings) {
     
     // Check if columns are mapped
     const dataCol = mappings?.ChecklistData;
-    const nameCol = mappings?.CompanyName;
+    const nameCol = mappings?.Empresa;
     const companyName = nameCol ? record[nameCol] : "Empresa não selecionada";
 
     logToScreen("Coluna mapeada (Dados): " + (dataCol ? dataCol : 'NÃO MAPEADA'));
