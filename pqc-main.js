@@ -1,13 +1,14 @@
 // pqc-main.js - Orquestrador do Ecossistema PQC
 import { Home } from './modules/pqc/home.js';
-// import { Diamante } from './modules/pqc/diamante.js'; // Planejado para depois
 
 class PQCPortal {
     constructor() {
         this.currentPage = null;
         this.contentArea = document.getElementById('pqc-content');
         this.navItems = document.querySelectorAll('.nav-item');
+        this.companySelector = document.getElementById('company-selector');
         this.gristData = null;
+        this.allCompanies = [];
 
         this.init();
     }
@@ -21,15 +22,24 @@ class PQCPortal {
             columns: ['EmpresaRef', 'ChecklistData'] // Colunas base para o portal
         });
 
+        // Escuta o registro selecionado no Grist
         grist.onRecord((record, mappings) => {
             this.gristData = { record, mappings };
-            this.updateCompanyInfo(record);
+            this.syncSelectorWithRecord(record);
             
-            // Se já tiver uma página carregada, avisa que os dados mudaram
             if (this.currentPage && typeof this.currentPage.update === 'function') {
                 this.currentPage.update(record, mappings);
             }
         });
+
+        // Busca todas as empresas disponíveis para popular o dropdown
+        try {
+            // Utilizamos a tabela 'Empresa' definida no SCHEMA.md
+            this.allCompanies = await grist.docApi.fetchTable('Empresa');
+            this.populateCompanySelector();
+        } catch (err) {
+            console.error("Erro ao buscar empresas:", err);
+        }
 
         // Eventos de Navegação
         this.navItems.forEach(item => {
@@ -39,27 +49,47 @@ class PQCPortal {
             });
         });
 
+        // Evento de Troca de Empresa no Dropdown
+        this.companySelector.addEventListener('change', (e) => {
+            const companyId = e.target.value;
+            if (companyId) {
+                // Solicita ao Grist que selecione este registro (sincronização bidirecional)
+                grist.setSelectedRows([parseInt(companyId)]);
+            }
+        });
+
         // Carrega a página inicial por padrão
         this.loadPage('home');
     }
 
-    updateCompanyInfo(record) {
-        const companySpan = document.getElementById('company-name');
-        if (record && record.EmpresaRef) {
-            // Se for uma referência, pegamos o displayValue se disponível
-            companySpan.textContent = record.EmpresaRef.displayValue || record.EmpresaRef;
-        } else {
-            companySpan.textContent = "Nenhuma empresa selecionada";
+    populateCompanySelector() {
+        this.companySelector.innerHTML = '<option value="">Selecionar Empresa...</option>';
+        
+        // Ordena por nome (conforme SCHEMA.md: Nome_da_Empresa)
+        const sorted = [...this.allCompanies.id].map((id, index) => ({
+            id: id,
+            nome: this.allCompanies.Nome_da_Empresa[index]
+        })).sort((a, b) => (a.nome || "").localeCompare(b.nome || ""));
+
+        sorted.forEach(comp => {
+            const opt = document.createElement('option');
+            opt.value = comp.id;
+            opt.textContent = comp.nome || `ID: ${comp.id}`;
+            this.companySelector.appendChild(opt);
+        });
+    }
+
+    syncSelectorWithRecord(record) {
+        if (record && record.id) {
+            this.companySelector.value = record.id;
         }
     }
 
     async loadPage(pageId) {
-        // Atualiza UI da sidebar
         this.navItems.forEach(item => {
             item.classList.toggle('active', item.dataset.page === pageId);
         });
 
-        // Lógica de carregamento de módulos
         this.contentArea.innerHTML = '<div class="loader">Carregando ' + pageId + '...</div>';
 
         try {
@@ -87,7 +117,6 @@ class PQCPortal {
     }
 }
 
-// Inicia o app quando o DOM estiver pronto
 document.addEventListener('DOMContentLoaded', () => {
     window.pqcApp = new PQCPortal();
 });

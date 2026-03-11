@@ -95,6 +95,23 @@ body, html {
     align-items: center;
 }
 
+.company-select {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--pqc-border);
+    background-color: #f8f9fa;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--pqc-primary);
+    cursor: pointer;
+    min-width: 200px;
+}
+
+.company-select:focus {
+    outline: none;
+    border-color: var(--pqc-accent);
+}
+
 .company-badge {
     background: #e9ecef;
     padding: 6px 14px;
