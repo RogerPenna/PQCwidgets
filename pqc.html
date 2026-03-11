@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal PQC - Ecossistema</title>
+    <title>Portal PQC</title>
     <link rel="stylesheet" href="pqc-style.css">
     <!-- Grist Widget API -->
     <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
@@ -11,9 +11,10 @@
 <body>
     <div id="pqc-app">
         <header id="pqc-topbar">
-            <div class="topbar-brand">
-                <img src="https://docs.getgrist.com/icons/grist-logo.svg" alt="PQC Logo" class="logo">
-                <span class="brand-name">Ecossistema PQC</span>
+            <div class="topbar-left">
+                <select id="company-selector" class="company-select">
+                    <option value="">Carregando empresas...</option>
+                </select>
             </div>
             
             <nav class="topbar-nav">
@@ -24,24 +25,15 @@
                 </ul>
             </nav>
 
-            <div class="topbar-info">
-                <select id="company-selector" class="company-select">
-                    <option value="">Selecionar Empresa...</option>
-                </select>
-                <span id="company-name" class="company-badge" style="display:none;">Carregando...</span>
+            <div class="topbar-right">
+                <span id="version-tag" class="version-badge">v1.0.1</span>
+                <span id="company-name" class="company-badge" style="display:none;"></span>
             </div>
         </header>
 
         <main id="pqc-content">
-            <!-- As páginas serão injetadas aqui -->
             <div id="loader">Iniciando Portal PQC...</div>
         </main>
-    </div>
-
-    <!-- Console de Debug (Oculto por padrão) -->
-    <div id="pqc-debug" style="display:none;">
-        <h3>Debug Console</h3>
-        <div id="debug-log"></div>
     </div>
 
     <script type="module" src="pqc-main.js"></script>
