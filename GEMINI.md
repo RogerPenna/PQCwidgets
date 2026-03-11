@@ -18,3 +18,10 @@ Para o desenvolvimento do novo portal, utilize exclusivamente a estrutura parale
 ## 📋 Contexto de Dados
 - O sistema utiliza as tabelas descritas em `SCHEMA.md`.
 - O foco atual é a criação da estrutura de navegação e a tela de Dashboard (Home).
+
+## ✅ Progresso Alcançado
+- **Estrutura Base**: Portal v1.0.2 com Top Bar, navegação entre módulos e seletor de empresas funcional.
+- **Integração Grist**: Implementação do `GristTableLens` (GTL) como motor de dados principal.
+- **Bibliotecas**: Importação de componentes robustos do workspace `custom-grist-widgets` (Field Renderers, Table Lens, Style Utils, etc.) localizados em `/libraries`.
+- **Sincronização**: Dropdown de empresas sincronizado bidirecionalmente com os registros do Grist.
+
