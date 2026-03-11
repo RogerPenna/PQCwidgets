@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal PQC</title>
-    <link rel="stylesheet" href="pqc-style.css">
+    <title>Portal PQC v1.0.2</title>
+    <link rel="stylesheet" href="pqc-style.css?v=1.0.2">
     <!-- Grist Widget API -->
     <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
 </head>
 <body>
-    <div id="pqc-app">
+    <div id="pqc-app" class="v102">
         <header id="pqc-topbar">
             <div class="topbar-left">
                 <select id="company-selector" class="company-select">
@@ -20,22 +20,22 @@
             <nav class="topbar-nav">
                 <ul class="nav-links">
                     <li class="nav-item active" data-page="home">🏠 Home</li>
-                    <li class="nav-item" data-page="diamante">💎 Checklist Diamante</li>
+                    <li class="nav-item" data-page="diamante">💎 Checklist</li>
                     <li class="nav-item" data-page="autoavaliacao">📝 Autoavaliação</li>
                 </ul>
             </nav>
 
             <div class="topbar-right">
-                <span id="version-tag" class="version-badge">v1.0.1</span>
+                <span class="version-badge">v1.0.2</span>
                 <span id="company-name" class="company-badge" style="display:none;"></span>
             </div>
         </header>
 
         <main id="pqc-content">
-            <div id="loader">Iniciando Portal PQC...</div>
+            <div id="loader">Carregando Ecossistema...</div>
         </main>
     </div>
 
-    <script type="module" src="pqc-main.js"></script>
+    <script type="module" src="pqc-main.js?v=1.0.2"></script>
 </body>
 </html>
