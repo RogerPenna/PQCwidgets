@@ -34,11 +34,13 @@ class PQCPortal {
 
         // Busca todas as empresas disponíveis para popular o dropdown
         try {
-            // Utilizamos a tabela 'Empresa' definida no SCHEMA.md
+            console.log("Buscando tabela 'Empresa'...");
             this.allCompanies = await grist.docApi.fetchTable('Empresa');
+            console.log("Empresas carregadas:", this.allCompanies);
             this.populateCompanySelector();
         } catch (err) {
-            console.error("Erro ao buscar empresas:", err);
+            console.error("ERRO CRÍTICO ao buscar empresas:", err);
+            this.companySelector.innerHTML = '<option value="">Erro ao carregar (ver console)</option>';
         }
 
         // Eventos de Navegação
