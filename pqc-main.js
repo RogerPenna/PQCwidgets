@@ -1,5 +1,6 @@
 // pqc-main.js - Orquestrador do Ecossistema PQC
 import { Home } from './modules/pqc/home.js';
+import { GristTableLens } from './libraries/grist-table-lens/grist-table-lens.js';
 
 class PQCPortal {
     constructor() {
@@ -7,22 +8,23 @@ class PQCPortal {
         this.contentArea = document.getElementById('pqc-content');
         this.navItems = document.querySelectorAll('.nav-item');
         this.companySelector = document.getElementById('company-selector');
+        
         this.gristData = null;
         this.allCompanies = [];
+        this.gtl = null;
 
         this.init();
     }
 
     async init() {
-        console.log("Iniciando Portal PQC...");
+        console.log("Iniciando Portal PQC v1.0.2...");
         
-        // Configura o Grist para escutar mudanças
         grist.ready({
-            requiredAccess: 'full',
-            columns: ['EmpresaRef', 'ChecklistData'] // Colunas base para o portal
+            requiredAccess: 'full'
         });
 
-        // Escuta o registro selecionado no Grist
+        this.gtl = new GristTableLens(grist);
+
         grist.onRecord((record, mappings) => {
             this.gristData = { record, mappings };
             this.syncSelectorWithRecord(record);
@@ -32,18 +34,18 @@ class PQCPortal {
             }
         });
 
-        // Busca todas as empresas disponíveis para popular o dropdown
+        // Busca empresas usando o GTL
         try {
-            console.log("Buscando tabela 'Empresa'...");
-            this.allCompanies = await grist.docApi.fetchTable('Empresa');
-            console.log("Empresas carregadas:", this.allCompanies);
+            console.log("Buscando empresas via GTL...");
+            this.allCompanies = await this.gtl.fetchTableRecords('Empresa');
+            console.log(`${this.allCompanies.length} empresas carregadas.`);
             this.populateCompanySelector();
         } catch (err) {
-            console.error("ERRO CRÍTICO ao buscar empresas:", err);
-            this.companySelector.innerHTML = '<option value="">Erro ao carregar (ver console)</option>';
+            console.error("ERRO ao carregar empresas:", err);
+            this.companySelector.innerHTML = '<option value="">Erro ao carregar dados</option>';
         }
 
-        // Eventos de Navegação
+        // Navegação
         this.navItems.forEach(item => {
             item.addEventListener('click', (e) => {
                 const pageId = e.target.closest('.nav-item').dataset.page;
@@ -51,32 +53,29 @@ class PQCPortal {
             });
         });
 
-        // Evento de Troca de Empresa no Dropdown
+        // Selector
         this.companySelector.addEventListener('change', (e) => {
             const companyId = e.target.value;
             if (companyId) {
-                // Solicita ao Grist que selecione este registro (sincronização bidirecional)
                 grist.setSelectedRows([parseInt(companyId)]);
             }
         });
 
-        // Carrega a página inicial por padrão
         this.loadPage('home');
     }
 
     populateCompanySelector() {
         this.companySelector.innerHTML = '<option value="">Selecionar Empresa...</option>';
         
-        // Ordena por nome (conforme SCHEMA.md: Nome_da_Empresa)
-        const sorted = [...this.allCompanies.id].map((id, index) => ({
-            id: id,
-            nome: this.allCompanies.Nome_da_Empresa[index]
-        })).sort((a, b) => (a.nome || "").localeCompare(b.nome || ""));
+        // Com GTL, os registros já vêm como objetos: { id, Nome_da_Empresa, ... }
+        const sorted = [...this.allCompanies].sort((a, b) => 
+            (a.Nome_da_Empresa || "").localeCompare(b.Nome_da_Empresa || "")
+        );
 
         sorted.forEach(comp => {
             const opt = document.createElement('option');
             opt.value = comp.id;
-            opt.textContent = comp.nome || `ID: ${comp.id}`;
+            opt.textContent = comp.Nome_da_Empresa || `ID: ${comp.id}`;
             this.companySelector.appendChild(opt);
         });
     }
@@ -97,7 +96,7 @@ class PQCPortal {
         try {
             switch (pageId) {
                 case 'home':
-                    this.currentPage = new Home(this.contentArea);
+                    this.currentPage = new Home(this.contentArea, this.gtl);
                     break;
                 case 'diamante':
                     this.contentArea.innerHTML = '<h2>Checklist Diamante</h2><p>Módulo em desenvolvimento...</p>';
