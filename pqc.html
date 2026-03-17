@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal PQC v1.0.2</title>
     <link rel="stylesheet" href="pqc-style.css?v=1.0.2">
+    <link rel="stylesheet" href="pqc-capacitacao.css?v=1.0.2">
+    <link rel="stylesheet" href="pqc-autoavaliacao.css?v=1.0.2">
+    <link rel="stylesheet" href="pqc-melhorias.css?v=1.0.2">
+    <link rel="stylesheet" href="pqc-detalhes.css?v=1.0.2">
     <!-- Grist Widget API -->
     <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
 </head>
@@ -18,11 +22,17 @@
             </div>
             
             <nav class="topbar-nav">
-                <ul class="nav-links">
-                    <li class="nav-item active" data-page="home">🏠 Home</li>
-                    <li class="nav-item" data-page="diamante">💎 Checklist</li>
-                    <li class="nav-item" data-page="autoavaliacao">📝 Autoavaliação</li>
-                </ul>
+                <div class="menu-container">
+                    <label for="menu-selector" class="menu-label">Menu:</label>
+                    <select id="menu-selector" class="menu-select">
+                        <option value="home">🏠 1 - Detalhe Empresa</option>
+                        <option value="autoavaliacao">📝 2 - Práticas</option>
+                        <option value="bonus">🎁 3 - Bônus Pontualidade IC</option>
+                        <option value="resultados">📊 4 - Resultados</option>
+                        <option value="melhorias">🛠️ 5 - Plano de Melhorias</option>
+                        <option value="capacitacao">⏲️ 6 - Horas de Capacitação</option>
+                    </select>
+                </div>
             </nav>
 
             <div class="topbar-right">

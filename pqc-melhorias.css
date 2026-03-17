@@ -1,0 +1,114 @@
+/* pqc-melhorias.css */
+.melhorias-container {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.melhorias-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 15px;
+}
+
+.plan-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.plan-card {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 15px;
+    background: #fdfdfd;
+    position: relative;
+    border-left: 5px solid #e67e22;
+}
+
+.plan-card-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.plan-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+}
+
+.plan-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.plan-field label {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #7f8c8d;
+    text-transform: uppercase;
+}
+
+.plan-field input, .plan-field textarea, .plan-field select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+/* Color logic for the CHECK (C) field */
+.check-select {
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+}
+
+.check-0 { background-color: #d63031 !important; }
+.check-25 { background-color: #e67e22 !important; }
+.check-50 { background-color: #f1c40f !important; color: #333 !important; text-shadow: none !important; }
+.check-75 { background-color: #2ecc71 !important; }
+.check-100 { background-color: #27ae60 !important; }
+
+.btn-add-plan {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-remove-plan {
+    background: #ff7675;
+    color: white;
+    border: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-add-plan:hover { background-color: #2980b9; }
+.save-bar {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 15px;
+}

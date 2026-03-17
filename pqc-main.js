@@ -1,15 +1,18 @@
 // pqc-main.js - Orquestrador do Ecossistema PQC
-import { Home } from './modules/pqc/home.js';
+import { Detalhes } from './modules/pqc/detalhes.js';
+import { Capacitacao } from './modules/pqc/capacitacao.js';
+import { Autoavaliacao } from './modules/pqc/autoavaliacao.js';
+import { Melhorias } from './modules/pqc/melhorias.js';
 import { GristTableLens } from './libraries/grist-table-lens/grist-table-lens.js';
 
 class PQCPortal {
     constructor() {
         this.currentPage = null;
         this.contentArea = document.getElementById('pqc-content');
-        this.navItems = document.querySelectorAll('.nav-item');
+        this.menuSelector = document.getElementById('menu-selector');
         this.companySelector = document.getElementById('company-selector');
         
-        this.gristData = null;
+        this.gristData = { record: null, mappings: null };
         this.allCompanies = [];
         this.gtl = null;
 
@@ -25,49 +28,60 @@ class PQCPortal {
 
         this.gtl = new GristTableLens(grist);
 
+        // Listener oficial do Grist
         grist.onRecord((record, mappings) => {
-            this.gristData = { record, mappings };
-            this.syncSelectorWithRecord(record);
-            
-            if (this.currentPage && typeof this.currentPage.update === 'function') {
-                this.currentPage.update(record, mappings);
-            }
+            this.handleRecordUpdate(record, mappings);
         });
 
-        // Busca empresas usando o GTL
+        // Busca todas as empresas para o seletor
         try {
-            console.log("Buscando empresas via GTL...");
             this.allCompanies = await this.gtl.fetchTableRecords('Empresa');
-            console.log(`${this.allCompanies.length} empresas carregadas.`);
             this.populateCompanySelector();
         } catch (err) {
             console.error("ERRO ao carregar empresas:", err);
-            this.companySelector.innerHTML = '<option value="">Erro ao carregar dados</option>';
         }
 
-        // Navegação
-        this.navItems.forEach(item => {
-            item.addEventListener('click', (e) => {
-                const pageId = e.target.closest('.nav-item').dataset.page;
-                this.loadPage(pageId);
-            });
+        // Navegação via Dropdown de Menu
+        this.menuSelector.addEventListener('change', (e) => {
+            this.loadPage(e.target.value);
         });
 
-        // Selector
+        // Mudança Manual de Empresa (Dropdown)
         this.companySelector.addEventListener('change', (e) => {
             const companyId = e.target.value;
             if (companyId) {
                 grist.setSelectedRows([parseInt(companyId)]);
+                const record = this.allCompanies.find(c => c.id == companyId);
+                if (record) {
+                    this.handleRecordUpdate(record, this.gristData.mappings);
+                }
             }
         });
 
         this.loadPage('home');
     }
 
+    handleRecordUpdate(record, mappings) {
+        if (!record) return;
+        this.gristData = { record, mappings };
+        
+        if (this.companySelector.value != record.id) {
+            this.companySelector.value = record.id;
+        }
+
+        const nameEl = document.getElementById('company-name');
+        if (nameEl) {
+            nameEl.textContent = record.Nome_da_Empresa || `ID: ${record.id}`;
+            nameEl.style.display = 'inline-block';
+        }
+
+        if (this.currentPage && typeof this.currentPage.update === 'function') {
+            this.currentPage.update(record, mappings);
+        }
+    }
+
     populateCompanySelector() {
         this.companySelector.innerHTML = '<option value="">Selecionar Empresa...</option>';
-        
-        // Com GTL, os registros já vêm como objetos: { id, Nome_da_Empresa, ... }
         const sorted = [...this.allCompanies].sort((a, b) => 
             (a.Nome_da_Empresa || "").localeCompare(b.Nome_da_Empresa || "")
         );
@@ -80,40 +94,40 @@ class PQCPortal {
         });
     }
 
-    syncSelectorWithRecord(record) {
-        if (record && record.id) {
-            this.companySelector.value = record.id;
-        }
-    }
-
     async loadPage(pageId) {
-        this.navItems.forEach(item => {
-            item.classList.toggle('active', item.dataset.page === pageId);
-        });
-
+        this.menuSelector.value = pageId;
         this.contentArea.innerHTML = '<div class="loader">Carregando ' + pageId + '...</div>';
 
         try {
             switch (pageId) {
                 case 'home':
-                    this.currentPage = new Home(this.contentArea, this.gtl);
+                    this.currentPage = new Detalhes(this.contentArea, this.gtl);
                     break;
-                case 'diamante':
-                    this.contentArea.innerHTML = '<h2>Checklist Diamante</h2><p>Módulo em desenvolvimento...</p>';
+                case 'capacitacao':
+                    this.currentPage = new Capacitacao(this.contentArea, this.gtl);
                     break;
                 case 'autoavaliacao':
-                    this.contentArea.innerHTML = '<h2>Autoavaliação</h2><p>Módulo em desenvolvimento...</p>';
+                    this.currentPage = new Autoavaliacao(this.contentArea, this.gtl);
+                    break;
+                case 'bonus':
+                    this.contentArea.innerHTML = '<h2>🎁 Bônus Pontualidade IC</h2><p>Em desenvolvimento...</p>';
+                    break;
+                case 'resultados':
+                    this.contentArea.innerHTML = '<h2>📊 Resultados</h2><p>Em desenvolvimento...</p>';
+                    break;
+                case 'melhorias':
+                    this.currentPage = new Melhorias(this.contentArea, this.gtl);
                     break;
                 default:
                     this.contentArea.innerHTML = '<h2>404</h2><p>Página não encontrada.</p>';
             }
 
             if (this.currentPage && typeof this.currentPage.render === 'function') {
-                await this.currentPage.render(this.gristData?.record, this.gristData?.mappings);
+                await this.currentPage.render(this.gristData.record, this.gristData.mappings);
             }
         } catch (error) {
             console.error("Erro ao carregar página:", error);
-            this.contentArea.innerHTML = '<div class="error">Erro ao carregar a página ' + pageId + '</div>';
+            this.contentArea.innerHTML = '<div class="error">Erro ao carregar a página</div>';
         }
     }
 }
