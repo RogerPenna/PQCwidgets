@@ -6,6 +6,7 @@ export class Detalhes {
         this.gtl = gtl;
         this.companyRecord = null;
         this.schema = null;
+        this.tableMeta = null;
         this.hasChanges = false;
         this.formData = {};
     }
@@ -14,7 +15,12 @@ export class Detalhes {
         this.companyRecord = record;
         
         if (!this.schema) {
-            this.schema = await this.gtl.getTableSchema('Empresa');
+            const [s, m] = await Promise.all([
+                this.gtl.getTableSchema('Empresa'),
+                this.gtl.getTableMetadata('Empresa')
+            ]);
+            this.schema = s;
+            this.tableMeta = m;
         }
 
         this.formData = {
@@ -38,9 +44,25 @@ export class Detalhes {
         return "";
     }
 
+    renderPageHeader() {
+        if (!this.tableMeta) return "";
+        const desc = this.tableMeta.description;
+        return `
+            <div class="page-header">
+                <div class="page-title-row">
+                    <h1 class="page-title">🏠 1 - Perfil da Empresa</h1>
+                    ${desc ? `<button class="description-toggle" id="desc-toggle">Saiba mais...</button>` : ""}
+                </div>
+                ${desc ? `<div class="page-description" id="page-desc">${desc}</div>` : ""}
+            </div>
+        `;
+    }
+
     renderUI() {
         this.container.innerHTML = `
             <div class="detalhes-container">
+                ${this.renderPageHeader()}
+                
                 <!-- SEÇÃO 1 -->
                 <div class="section-block">
                     <div class="section-title-bar">
@@ -142,6 +164,16 @@ export class Detalhes {
     }
 
     addEventListeners() {
+        // Toggle da descrição da página
+        const descToggle = this.container.querySelector('#desc-toggle');
+        const pageDesc = this.container.querySelector('#page-desc');
+        if (descToggle && pageDesc) {
+            descToggle.addEventListener('click', () => {
+                pageDesc.classList.toggle('visible');
+                descToggle.textContent = pageDesc.classList.contains('visible') ? 'Fechar ajuda' : 'Saiba mais...';
+            });
+        }
+
         const textareas = this.container.querySelectorAll('.field-textarea');
         textareas.forEach(ta => {
             ta.addEventListener('input', (e) => {

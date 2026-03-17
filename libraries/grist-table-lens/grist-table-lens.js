@@ -167,6 +167,24 @@ export const GristTableLens = function(gristInstance) {
     };
 
     /**
+     * [NOVO] Retorna metadados da tabela (Label, Descrição).
+     */
+    this.getTableMetadata = async function(tableId) {
+        await _loadGristMeta();
+        if (!_metaState.tables?.tableId) return null;
+        const idx = _metaState.tables.tableId.findIndex(t => String(t) === String(tableId));
+        if (idx === -1) return null;
+        
+        // Grist pode omitir colunas se estiverem vazias no meta. Usamos []?.[idx] como segurança.
+        return {
+            id: _metaState.tables.id?.[idx],
+            tableId: _metaState.tables.tableId?.[idx],
+            label: _metaState.tables.label?.[idx] || _metaState.tables.tableId?.[idx],
+            description: _metaState.tables.description?.[idx] || ""
+        };
+    };
+
+    /**
      * [INALTERADO] Busca registros de uma tabela. Em caso de erro (ex: tabela não existe),
      * retorna um array vazio para manter compatibilidade com componentes antigos.
      */

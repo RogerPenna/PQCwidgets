@@ -3,49 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal PQC v1.0.2</title>
-    <link rel="stylesheet" href="pqc-style.css?v=1.0.2">
-    <link rel="stylesheet" href="pqc-capacitacao.css?v=1.0.2">
-    <link rel="stylesheet" href="pqc-autoavaliacao.css?v=1.0.2">
-    <link rel="stylesheet" href="pqc-melhorias.css?v=1.0.2">
-    <link rel="stylesheet" href="pqc-detalhes.css?v=1.0.2">
+    <title>Portal PQC v1.1.0</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="pqc-style.css?v=1.1.0">
+    <link rel="stylesheet" href="pqc-capacitacao.css?v=1.1.0">
+    <link rel="stylesheet" href="pqc-autoavaliacao.css?v=1.1.0">
+    <link rel="stylesheet" href="pqc-melhorias.css?v=1.1.0">
+    <link rel="stylesheet" href="pqc-detalhes.css?v=1.1.0">
+    <link rel="stylesheet" href="pqc-diamante.css?v=1.1.0">
+    
     <!-- Grist Widget API -->
     <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
 </head>
 <body>
-    <div id="pqc-app" class="v102">
+    <div id="pqc-app" class="v110">
+        <!-- TOP BAR MINIMALISTA -->
         <header id="pqc-topbar">
             <div class="topbar-left">
-                <select id="company-selector" class="company-select">
-                    <option value="">Carregando empresas...</option>
-                </select>
+                <button id="btn-home" class="btn-icon" title="Dashboard">
+                    <span style="font-size: 1.2rem;">🏠</span>
+                </button>
+                <button id="btn-search-trigger" class="btn-icon" title="Trocar Empresa">
+                    <span style="font-size: 1.2rem;">🔍</span>
+                </button>
             </div>
             
             <nav class="topbar-nav">
-                <div class="menu-container">
-                    <label for="menu-selector" class="menu-label">Menu:</label>
-                    <select id="menu-selector" class="menu-select">
-                        <option value="home">🏠 1 - Detalhe Empresa</option>
-                        <option value="autoavaliacao">📝 2 - Práticas</option>
-                        <option value="bonus">🎁 3 - Bônus Pontualidade IC</option>
-                        <option value="resultados">📊 4 - Resultados</option>
-                        <option value="melhorias">🛠️ 5 - Plano de Melhorias</option>
-                        <option value="capacitacao">⏲️ 6 - Horas de Capacitação</option>
-                    </select>
+                <!-- Dropdown Autoavaliação -->
+                <div class="dropdown">
+                    <div class="dropdown-trigger">📝 Autoavaliação ▼</div>
+                    <div class="dropdown-content">
+                        <div class="dropdown-item" data-page="home">📋 1 - Perfil da Empresa</div>
+                        <div class="dropdown-item" data-page="autoavaliacao">📝 2 - Práticas</div>
+                        <div class="dropdown-item" data-page="resultados">📊 3 - Resultados</div>
+                        <div class="dropdown-item" data-page="melhorias">🛠️ 4 - Plano de Melhorias</div>
+                        <div class="dropdown-item" data-page="capacitacao">⏲️ 5 - Horas de Capacitação</div>
+                        <div class="dropdown-item" data-page="bonus">🎁 6 - Bônus Pontualidade</div>
+                    </div>
+                </div>
+
+                <!-- Dropdown Relatórios -->
+                <div class="dropdown">
+                    <div class="dropdown-trigger">📈 Relatórios ▼</div>
+                    <div class="dropdown-content">
+                        <div class="dropdown-item" data-page="dashboard">🏠 Dashboard de Notas</div>
+                        <div class="dropdown-item" data-page="evolucao">📈 Evolução Histórica</div>
+                    </div>
+                </div>
+
+                <!-- Dropdown Auditoria (Condicional via JS) -->
+                <div id="nav-auditoria" class="dropdown" style="display: none;">
+                    <div class="dropdown-trigger" style="color: var(--pqc-accent);">⚖️ Auditoria ▼</div>
+                    <div class="dropdown-content">
+                        <div class="dropdown-item" data-page="validar">✅ Validar Evidências</div>
+                        <div class="dropdown-item" data-page="diamante">💎 Checklist Diamante</div>
+                    </div>
                 </div>
             </nav>
 
             <div class="topbar-right">
-                <span class="version-badge">v1.0.2</span>
-                <span id="company-name" class="company-badge" style="display:none;"></span>
+                <div class="company-identity">
+                    <div id="company-logo" class="company-logo-placeholder">?</div>
+                    <span id="company-name-badge" class="company-name-compact">Nenhuma Empresa</span>
+                </div>
+                <span class="version-badge">v1.1.0</span>
             </div>
         </header>
 
+        <!-- CONTEÚDO PRINCIPAL -->
         <main id="pqc-content">
-            <div id="loader">Carregando Ecossistema...</div>
+            <div class="loader">Iniciando Ecossistema PQC...</div>
         </main>
+
+        <!-- SEARCH MODAL (FLYOUT) -->
+        <div id="search-modal" class="search-modal">
+            <div class="search-container">
+                <div class="search-header">
+                    <input type="text" id="search-input" class="search-input" placeholder="Pesquisar empresa..." autofocus>
+                </div>
+                <div id="search-results" class="search-results">
+                    <!-- Resultados via JS -->
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script type="module" src="pqc-main.js?v=1.0.2"></script>
+    <script type="module" src="pqc-main.js?v=1.1.0"></script>
 </body>
 </html>

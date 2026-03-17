@@ -8,6 +8,7 @@ export class Capacitacao {
         this.storageRecordId = null;
         this.isLegacyData = false;
         this.schema = null;
+        this.tableMeta = null;
         
         this.months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
         
@@ -26,9 +27,14 @@ export class Capacitacao {
     async render(record, mappings) {
         this.companyRecord = record;
         
-        // Carrega o schema se ainda não tiver (para as descrições/help)
+        // Carrega o schema e metadados se ainda não tiver
         if (!this.schema) {
-            this.schema = await this.gtl.getTableSchema('Horas_Capacitacao');
+            const [s, m] = await Promise.all([
+                this.gtl.getTableSchema('Horas_Capacitacao'),
+                this.gtl.getTableMetadata('Horas_Capacitacao')
+            ]);
+            this.schema = s;
+            this.tableMeta = m;
         }
 
         await this.loadDataFromRelatedTable();
@@ -38,8 +44,9 @@ export class Capacitacao {
 
         this.container.innerHTML = `
             <div class="capacitacao-container">
+                ${this.renderPageHeader()}
+                
                 <div class="capacitacao-header">
-                    <h2>⏲️ Horas de Capacitação</h2>
                     <div class="header-actions">
                         ${migrationNotice}
                         <span id="save-status" class="save-status">Sem alterações</span>
@@ -81,6 +88,20 @@ export class Capacitacao {
             return `<span class="help-icon" data-tooltip="${colMeta.description}">?</span>`;
         }
         return "";
+    }
+
+    renderPageHeader() {
+        if (!this.tableMeta) return "";
+        const desc = this.tableMeta.description;
+        return `
+            <div class="page-header">
+                <div class="page-title-row">
+                    <h1 class="page-title">⏲️ 6 - Horas de Capacitação</h1>
+                    ${desc ? `<button class="description-toggle" id="desc-toggle">Saiba mais...</button>` : ""}
+                </div>
+                ${desc ? `<div class="page-description" id="page-desc">${desc}</div>` : ""}
+            </div>
+        `;
     }
 
     async loadDataFromRelatedTable() {
@@ -171,6 +192,16 @@ export class Capacitacao {
     }
 
     addEventListeners() {
+        // Toggle da descrição da página
+        const descToggle = this.container.querySelector('#desc-toggle');
+        const pageDesc = this.container.querySelector('#page-desc');
+        if (descToggle && pageDesc) {
+            descToggle.addEventListener('click', () => {
+                pageDesc.classList.toggle('visible');
+                descToggle.textContent = pageDesc.classList.contains('visible') ? 'Fechar ajuda' : 'Saiba mais...';
+            });
+        }
+
         const inputs = this.container.querySelectorAll('input');
         inputs.forEach(input => {
             input.addEventListener('input', (e) => {

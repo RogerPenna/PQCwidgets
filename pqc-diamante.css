@@ -1,0 +1,98 @@
+/* pqc-diamante.css */
+/* Estilos específicos para o Módulo Diamante dentro do Portal */
+
+.checklist-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.checklist-wrapper .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #f8f9fa;
+}
+
+.checklist-wrapper .title h1 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: #2c3e50;
+}
+
+.checklist-wrapper .explanation {
+    background-color: #f0f7ff;
+    border-left: 4px solid #3498db;
+    padding: 15px;
+    margin-bottom: 25px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #34495e;
+    border-radius: 4px;
+}
+
+.checklist-wrapper .score-badge {
+    background-color: #f8f9fa;
+    color: #34495e;
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    border: 2px solid #dee2e6;
+}
+
+.checklist-wrapper .score-badge.perfect { background-color: #27ae60; color: white; border-color: #27ae60; }
+.checklist-wrapper .score-badge.warning { background-color: #f39c12; color: white; border-color: #f39c12; }
+.checklist-wrapper .score-badge.danger { background-color: #c0392b; color: white; border-color: #c0392b; }
+
+.checklist-wrapper .question-item {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+}
+
+.checklist-wrapper .question-label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #2c3e50;
+}
+
+.checklist-wrapper select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.checklist-wrapper .justification-field {
+    width: 100%;
+    min-height: 70px;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.checklist-wrapper .save-button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 30px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.checklist-wrapper .save-button:hover { background-color: #2980b9; }
+.checklist-wrapper .save-button.success { background-color: #27ae60; }

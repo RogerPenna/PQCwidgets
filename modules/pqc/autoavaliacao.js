@@ -10,6 +10,8 @@ export class Autoavaliacao {
         this.opcoes = [];
         this.evaluations = {}; // JSON que será salvo
         this.hasChanges = false;
+        this.schema = null;
+        this.tableMeta = null;
     }
 
     async render(record, mappings) {
@@ -17,13 +19,41 @@ export class Autoavaliacao {
         this.container.innerHTML = '<div class="loader">Carregando Estrutura de Práticas...</div>';
 
         // Carrega dados necessários em paralelo
+        const tasks = [this.loadDataFromRelatedTable()];
         if (!this.hierarchy) {
-            await this.loadStructure();
+            tasks.push(this.loadStructure());
         }
+        if (!this.schema) {
+            tasks.push(this.gtl.getTableSchema('Questoes').then(s => this.schema = s));
+        }
+        // Metadados da tabela Sessoes (usada como "âncora" para a descrição do módulo)
+        tasks.push(this.gtl.getTableMetadata('Sessoes').then(m => this.tableMeta = m));
         
-        await this.loadDataFromRelatedTable();
+        await Promise.all(tasks);
 
         this.renderUI();
+    }
+
+    renderHelpIcon(colId) {
+        const colMeta = this.schema?.[colId];
+        if (colMeta?.description) {
+            return `<span class="help-icon" data-tooltip="${colMeta.description}">?</span>`;
+        }
+        return "";
+    }
+
+    renderPageHeader() {
+        if (!this.tableMeta) return "";
+        const desc = this.tableMeta.description;
+        return `
+            <div class="page-header">
+                <div class="page-title-row">
+                    <h1 class="page-title">📝 2 - Autoavaliação - Práticas</h1>
+                    ${desc ? `<button class="description-toggle" id="desc-toggle">Saiba mais...</button>` : ""}
+                </div>
+                ${desc ? `<div class="page-description" id="page-desc">${desc}</div>` : ""}
+            </div>
+        `;
     }
 
     async loadStructure() {
@@ -104,10 +134,7 @@ export class Autoavaliacao {
 
         this.container.innerHTML = `
             <div class="auto-container">
-                <header class="pqc-header">
-                    <h1>📝 Autoavaliação - PDCA</h1>
-                    <p>Avalie o nível de maturidade de cada prática de gestão.</p>
-                </header>
+                ${this.renderPageHeader()}
 
                 <div id="auto-content">
                     ${this.hierarchy.map(sessao => this.renderSession(sessao)).join('')}
@@ -142,7 +169,10 @@ export class Autoavaliacao {
     renderQuestion(q) {
         return `
             <div class="question-item">
-                <div class="question-text">${q.texto}</div>
+                <div class="question-text">
+                    ${q.texto}
+                    ${this.renderHelpIcon('Questoes')}
+                </div>
                 <div class="pdca-grid">
                     ${['P', 'D', 'C', 'A'].map(stage => this.renderStage(q.id, stage)).join('')}
                 </div>
@@ -175,6 +205,16 @@ export class Autoavaliacao {
     }
 
     addEventListeners() {
+        // Toggle da descrição da página
+        const descToggle = this.container.querySelector('#desc-toggle');
+        const pageDesc = this.container.querySelector('#page-desc');
+        if (descToggle && pageDesc) {
+            descToggle.addEventListener('click', () => {
+                pageDesc.classList.toggle('visible');
+                descToggle.textContent = pageDesc.classList.contains('visible') ? 'Fechar ajuda' : 'Saiba mais...';
+            });
+        }
+
         const inputs = this.container.querySelectorAll('select, textarea');
         inputs.forEach(input => {
             input.addEventListener('input', (e) => {

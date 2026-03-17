@@ -9,6 +9,7 @@ export class Melhorias {
         this.plans = []; // Array de objetos { lacuna, oque, como, quem, quando, check }
         this.hasChanges = false;
         this.schema = null;
+        this.tableMeta = null;
         this.checkOptions = [
             { val: 0, label: "0%", class: "check-0" },
             { val: 25, label: "25%", class: "check-25" },
@@ -22,7 +23,12 @@ export class Melhorias {
         this.companyRecord = record;
         
         if (!this.schema) {
-            this.schema = await this.gtl.getTableSchema('Plano_de_Melhorias');
+            const [s, m] = await Promise.all([
+                this.gtl.getTableSchema('Plano_de_Melhorias'),
+                this.gtl.getTableMetadata('Plano_de_Melhorias')
+            ]);
+            this.schema = s;
+            this.tableMeta = m;
         }
 
         await this.loadDataFromRelatedTable();
@@ -35,6 +41,20 @@ export class Melhorias {
             return `<span class="help-icon" data-tooltip="${colMeta.description}">?</span>`;
         }
         return "";
+    }
+
+    renderPageHeader() {
+        if (!this.tableMeta) return "";
+        const desc = this.tableMeta.description;
+        return `
+            <div class="page-header">
+                <div class="page-title-row">
+                    <h1 class="page-title">🛠️ 5 - Plano de Melhorias</h1>
+                    ${desc ? `<button class="description-toggle" id="desc-toggle">Saiba mais...</button>` : ""}
+                </div>
+                ${desc ? `<div class="page-description" id="page-desc">${desc}</div>` : ""}
+            </div>
+        `;
     }
 
     async loadDataFromRelatedTable() {
@@ -66,9 +86,10 @@ export class Melhorias {
     renderUI() {
         this.container.innerHTML = `
             <div class="melhorias-container">
+                ${this.renderPageHeader()}
+
                 <header class="melhorias-header">
                     <div>
-                        <h1>🛠️ Plano de Melhorias</h1>
                         <p>Registre as ações para fechar as lacunas identificadas.</p>
                     </div>
                     <button id="btn-add-plan" class="btn-add-plan">➕ Novo Plano</button>
@@ -136,6 +157,16 @@ export class Melhorias {
     }
 
     addEventListeners() {
+        // Toggle da descrição da página
+        const descToggle = this.container.querySelector('#desc-toggle');
+        const pageDesc = this.container.querySelector('#page-desc');
+        if (descToggle && pageDesc) {
+            descToggle.addEventListener('click', () => {
+                pageDesc.classList.toggle('visible');
+                descToggle.textContent = pageDesc.classList.contains('visible') ? 'Fechar ajuda' : 'Saiba mais...';
+            });
+        }
+
         this.container.querySelector('#btn-add-plan').addEventListener('click', () => {
             this.plans.push({ lacuna: "", oque: "", como: "", quem: "", quando: "", check: 0 });
             this.renderUI();
